@@ -1,10 +1,10 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import CanvasDraw from "react-canvas-draw";
 import {ClayCheckbox} from '@clayui/form';
 import ClayColorPicker from '@clayui/color-picker';
 import ClayButton from "@clayui/button";
 import ClayIcon from '@clayui/icon';
-import ClayForm, {ClayInput} from '@clayui/form';
+import {ClayInput} from '@clayui/form';
 import ClayLayout from "@clayui/layout";
 import ClayList from '@clayui/list';
 
