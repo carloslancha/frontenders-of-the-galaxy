@@ -1,9 +1,10 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import CanvasDraw from "react-canvas-draw";
 import {ClayCheckbox} from '@clayui/form';
 import ClayColorPicker from '@clayui/color-picker';
 import ClayButton from "@clayui/button";
 import ClayIcon from '@clayui/icon';
+import ClayForm, {ClayInput} from '@clayui/form';
 import ClayLayout from "@clayui/layout";
 import ClayList from '@clayui/list';
 
@@ -11,20 +12,90 @@ import ClayList from '@clayui/list';
 import "@clayui/css/lib/css/atlas.css";
 import spritemap from "@clayui/css/lib/images/icons/icons.svg";
 
+const remoteAppClient = new window.__LIFERAY_REMOTE_APP_SDK__.Client({debug: true});
+
 function App() {
 	const canvasDrawRef = useRef();
+	const siteKey = useRef();
 
 	const [bgColor, setBgColor] = useState('#FFFFFF');
 	const [bgTransparent, setBgTransparent] = useState(false);
 	const [brushColor, setBrushColor] = useState('#000000');
+	const [name, setName] = useState('');
+
+	const getSiteGroupId = () => {
+		remoteAppClient.get('siteGroupId')
+		.then((value) => {
+			siteKey.current = value;
+		});
+	};
+
+	const handleSave = () =>{
+		canvasDrawRef.current.canvas.drawing.toBlob((blob) => {
+			// Create a file with the blob
+			const file  = new File(
+				[blob],
+				`${name}.png`, 
+				{
+					type: `image/png`
+				}
+			);
+
+			const formData = new FormData();
+			formData.append('file', file);
+
+			remoteAppClient.fetch(
+				`/o/headless-delivery/v1.0/sites/${siteKey.current}/documents`, {
+					headers: {
+						'Accept': 'application/json'
+					},
+					method: 'POST',
+					body: formData,
+				}
+			)
+			.then((response) => response.json())
+			.then((data) => {
+				// TODO: check json for errors
+				remoteAppClient.openToast({
+					message: 'Hurrah! Your image was uploaded',
+					type: 'success',
+				});
+			})
+			.catch((error) => {
+				console.log(error)
+				debugger;
+				remoteAppClient.openToast({
+					message: 'An error occured uploading your document',
+					type: 'danger',
+				});
+			});
+		});
+	};
+
+	useEffect(() => {
+		getSiteGroupId();
+	}, []);
 
 	return (
 		<ClayLayout.ContainerFluid view>
-			<ClayLayout.Row className="text-center">
-				<ClayLayout.Col size={2} >
-					<h2>Tools</h2>
-
+			<ClayLayout.Row>
+				<ClayLayout.Col size={3} >
 					<ClayList>
+						<ClayList.Item flex>
+							<ClayList.ItemField	className="ml-1">
+								<label htmlFor="drawingName">Name</label>
+
+								<ClayInput
+									id="drawingName"
+									onChange={(event) => {
+										setName(event.currentTarget.value);
+									}}
+									type="text"
+									value={name}
+								/>
+							</ClayList.ItemField>
+						</ClayList.Item>
+						
 						<ClayList.Item flex>
 							<ClayList.ItemField	className="ml-1">
 								<ClayColorPicker
@@ -91,31 +162,22 @@ function App() {
 					<ClayButton
 						className="ml-2"
 						displayType="primary"
+						onClick={handleSave}
 					>
 						Save
 					</ClayButton>
 				</ClayLayout.Col>
 
-				<ClayLayout.Col size={10}>
+				<ClayLayout.Col size={9}>
 					<CanvasDraw
 						ref={canvasDrawRef}
 						style={{
 							backgroundColor: bgTransparent ? 'transparent' : bgColor
 						}}
-						//loadTimeOffset: 5,
 						lazyRadius={0}
 						brushRadius={2}
 						brushColor={brushColor}
-						//catenaryColor: "#0a0302",
-						//gridColor: "rgba(150,150,150,0.17)",
-						//hideGrid={true}
 						canvasWidth="100%"
-						//canvasHeight="100%"
-						//disabled: false,
-						//imgSrc: "",
-						//saveData={drawData}
-						//immediateLoading: false,
-						//hideInterface={true}
 					/>
 				</ClayLayout.Col>
 			</ClayLayout.Row>
