@@ -3,11 +3,13 @@ import CanvasDraw from "react-canvas-draw";
 import {ClayCheckbox} from '@clayui/form';
 import ClayColorPicker from '@clayui/color-picker';
 import ClayButton from "@clayui/button";
+import ClayIcon from '@clayui/icon';
 import ClayLayout from "@clayui/layout";
 import ClayList from '@clayui/list';
 
 // Imports the @clayui/css package CSS
 import "@clayui/css/lib/css/atlas.css";
+import spritemap from "@clayui/css/lib/images/icons/icons.svg";
 
 function App() {
 	const canvasDrawRef = useRef();
@@ -54,6 +56,26 @@ function App() {
 									label="Transparent"
 									onChange={() => setBgTransparent(bgTransparent => !bgTransparent)}
 								/>
+							</ClayList.ItemField>
+						</ClayList.Item>
+
+						<ClayList.Item flex>
+							<ClayList.ItemField>
+								<ClayButton
+									displayType="secondary"
+									onClick={() => {
+										canvasDrawRef.current.undo();
+									}}
+								>
+									<span className="inline-item inline-item-before">
+										<ClayIcon
+											spritemap={spritemap}
+											symbol="undo"
+										/>
+									</span>
+
+									Undo
+								</ClayButton>
 							</ClayList.ItemField>
 						</ClayList.Item>
 					</ClayList>

@@ -7,6 +7,7 @@
     "@clayui/color-picker": "^3.3.3",
     "@clayui/css": "^3.18.1",
     "@clayui/form": "^3.11.1",
+    "@clayui/icon": "^3.0.5",
     "@clayui/layout": "^3.2.0",
     "@clayui/list": "^3.3.4",
     "@testing-library/jest-dom": "^4.2.4",
